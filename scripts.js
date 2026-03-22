@@ -1,22 +1,57 @@
 /* ===== NAVIGATION ===== */
 const nav = document.getElementById('nav');
 const navToggle = document.getElementById('navToggle');
-const navLinks = document.getElementById('navLinks');
+const navDrawer = document.getElementById('navDrawer');
+const navBackdrop = document.getElementById('navBackdrop');
+const mobileNavClose = document.getElementById('mobileNavClose');
 
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 60);
 });
 
+function openMobileNav() {
+  document.body.appendChild(navBackdrop);
+  document.body.appendChild(navDrawer);
+  navDrawer.classList.add('open');
+  navToggle.classList.add('active');
+  navToggle.setAttribute('aria-expanded', 'true');
+  document.body.style.overflow = 'hidden';
+  navBackdrop.style.display = 'block';
+  requestAnimationFrame(() => navBackdrop.classList.add('visible'));
+}
+
+function closeMobileNav() {
+  navDrawer.classList.remove('open');
+  navToggle.classList.remove('active');
+  navToggle.setAttribute('aria-expanded', 'false');
+  document.body.style.overflow = '';
+  navBackdrop.classList.remove('visible');
+  const navInner = document.querySelector('.nav-inner');
+  setTimeout(() => {
+    navBackdrop.style.display = 'none';
+    if (navInner) {
+      navInner.insertBefore(navBackdrop, navToggle);
+      navInner.insertBefore(navDrawer, navToggle);
+    }
+  }, 300);
+}
+
 navToggle.addEventListener('click', () => {
-  navToggle.classList.toggle('open');
-  navLinks.classList.toggle('open');
+  if (navDrawer.classList.contains('open')) closeMobileNav();
+  else openMobileNav();
 });
 
-navLinks.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => {
-    navToggle.classList.remove('open');
-    navLinks.classList.remove('open');
-  });
+if (navBackdrop) navBackdrop.addEventListener('click', closeMobileNav);
+if (mobileNavClose) mobileNavClose.addEventListener('click', closeMobileNav);
+
+navDrawer.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', closeMobileNav);
+});
+
+window.addEventListener('resize', () => {
+  if (window.innerWidth >= 769 && navDrawer.classList.contains('open')) {
+    closeMobileNav();
+  }
 });
 
 /* ===== LIGHTBOX ===== */
